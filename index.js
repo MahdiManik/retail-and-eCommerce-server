@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
 
     const brandCollection = client.db("brandDB").collection("brand");
+    const cartCollection = client.db("cartDB").collection("cart");
     const brandNameCollection = client
       .db("brandNameDB")
       .collection("brandName");
@@ -53,6 +54,30 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedProduct = req.body;
+      const productValue = {
+        $set: {
+          name: updatedProduct.name,
+          brand: updatedProduct.brand,
+          type: updatedProduct.type,
+          rating: updatedProduct.rating,
+          price: updatedProduct.price,
+          details: updatedProduct.details,
+          photo: updatedProduct.photo,
+        },
+      };
+      const result = await brandCollection.updateOne(
+        filter,
+        productValue,
+        options
+      );
+      res.send(result);
+    });
+
     app.post("/brandName", async (req, res) => {
       const brandProducts = req.body;
       console.log(brandProducts);
@@ -70,6 +95,26 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await brandNameCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/cart", async (req, res) => {
+      const cartProducts = req.body;
+      console.log(cartProducts);
+      const result = await cartCollection.insertOne(cartProducts);
+      res.send(result);
+    });
+
+    app.get("/cart", async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.findOne(query);
       res.send(result);
     });
 
