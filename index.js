@@ -28,104 +28,6 @@ async function run() {
   try {
     //await client.connect();
 
-    const brandCollection = client.db("brandDB").collection("brand");
-    const cartCollection = client.db("cartDB").collection("cart");
-    const brandNameCollection = client
-      .db("brandNameDB")
-      .collection("brandName");
-
-    app.get("/brand", async (req, res) => {
-      const cursor = brandCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.get("/brand/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await brandCollection.findOne(query);
-      res.send(result);
-    });
-
-    app.post("/brand", async (req, res) => {
-      const brandProducts = req.body;
-      console.log(brandProducts);
-      const result = await brandCollection.insertOne(brandProducts);
-      res.send(result);
-    });
-
-    app.put("/brand/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedProduct = req.body;
-      const productValue = {
-        $set: {
-          name: updatedProduct.name,
-          brand: updatedProduct.brand,
-          type: updatedProduct.type,
-          rating: updatedProduct.rating,
-          price: updatedProduct.price,
-          details: updatedProduct.details,
-          photo: updatedProduct.photo,
-        },
-      };
-      const result = await brandCollection.updateOne(
-        filter,
-        productValue,
-        options
-      );
-      res.send(result);
-    });
-
-    app.post("/brandName", async (req, res) => {
-      const brandProducts = req.body;
-      console.log(brandProducts);
-      const result = await brandNameCollection.insertOne(brandProducts);
-      res.send(result);
-    });
-
-    app.get("/brandName", async (req, res) => {
-      const cursor = brandNameCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.get("/brandName/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await brandNameCollection.findOne(query);
-      res.send(result);
-    });
-
-    app.post("/cart", async (req, res) => {
-      const cartProducts = req.body;
-      console.log(cartProducts);
-      const result = await cartCollection.insertOne(cartProducts);
-      res.send(result);
-    });
-
-    app.get("/cart", async (req, res) => {
-      const cursor = cartCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.get("/cart/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id };
-      const result = await cartCollection.findOne(query);
-      res.send(result);
-    });
-
-    app.delete("/cart/:id", async (req, res) => {
-      const id = req.params.id;
-      console.log(id);
-      const query = { _id: id };
-      const result = await cartCollection.deleteOne(query);
-      res.send(result);
-    });
-
     //await client.db("admin").command({ ping: 1 });
 
     console.log(
@@ -136,6 +38,99 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
+const brandCollection = client.db("brandDB").collection("brand");
+const cartCollection = client.db("cartDB").collection("cart");
+
+const brandNameCollection = client.db("brandNameDB").collection("brandName");
+
+app.get("/brand", async (req, res) => {
+  const cursor = brandCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
+app.get("/brand/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await brandCollection.findOne(query);
+  res.send(result);
+});
+
+app.post("/brand", async (req, res) => {
+  const brandProducts = req.body;
+  console.log(brandProducts);
+  const result = await brandCollection.insertOne(brandProducts);
+  res.send(result);
+});
+
+app.put("/brand/:id", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updatedProduct = req.body;
+  const productValue = {
+    $set: {
+      name: updatedProduct.name,
+      brand: updatedProduct.brand,
+      type: updatedProduct.type,
+      rating: updatedProduct.rating,
+      price: updatedProduct.price,
+      details: updatedProduct.details,
+      photo: updatedProduct.photo,
+    },
+  };
+  const result = await brandCollection.updateOne(filter, productValue, options);
+  res.send(result);
+});
+
+app.post("/brandName", async (req, res) => {
+  const brandProducts = req.body;
+  console.log(brandProducts);
+  const result = await brandNameCollection.insertOne(brandProducts);
+  res.send(result);
+});
+
+app.get("/brandName", async (req, res) => {
+  const cursor = brandNameCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
+app.get("/brandName/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await brandNameCollection.findOne(query);
+  res.send(result);
+});
+
+app.get("/userCart/:email", async (req, res) => {
+  const cursor = cartCollection.find({ email: req.params.email });
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
+app.post("/cart", async (req, res) => {
+  const cartProducts = req.body;
+  console.log(cartProducts);
+  const result = await cartCollection.insertOne(cartProducts);
+  res.send(result);
+});
+
+app.get("/cart/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: id };
+  const result = await cartCollection.findOne(query);
+  res.send(result);
+});
+
+app.delete("/cart/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: id };
+  const result = await cartCollection.deleteOne(query);
+  res.send(result);
+});
 
 app.listen(port, () => {
   console.log(`brand server is running on port${port}`);
